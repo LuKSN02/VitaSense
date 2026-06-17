@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VitaSense Drive — Pulseira inteligente para motoristas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================= TOKENS ============================= */
+:root{
+  --bg:#070a13;
+  --bg-soft:#0c1120;
+  --bg-elev:#10172b;
+  --bg-card:#131b32;
+  --bg-card-hover:#161f3a;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.14);
+  --blue:#3568e0;
+  --blue-bright:#5b8aff;
+  --blue-soft:rgba(91,138,255,.14);
+  --green:#33d499;
+  --green-soft:rgba(51,212,153,.14);
+  --amber:#f3b341;
+  --amber-soft:rgba(243,179,65,.14);
+  --red:#ef5466;
+  --red-soft:rgba(239,84,102,.14);
+  --text:#eef2fb;
+  --text-dim:#9aa6c4;
+  --text-faint:#5d6885;
+  --font-display:'Rajdhani',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --radius-sm:10px;
+  --radius-md:16px;
+  --radius-lg:26px;
+  --container:1180px;
+  --shadow-glow:0 0 0 1px rgba(91,138,255,.15), 0 20px 60px -20px rgba(53,104,224,.35);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select{font-family:inherit;font-size:15px;color:var(--text);}
+ul{list-style:none;}
+:focus-visible{outline:2px solid var(--blue-bright);outline-offset:3px;border-radius:4px;}
+
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;letter-spacing:.01em;color:var(--text);}
+.mono{font-family:var(--font-mono);}
+
+.container{max-width:var(--container);margin:0 auto;padding:0 28px;}
+.page{display:none;}
+.page.active{display:block;animation:pageIn .5s ease both;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+[data-animate]{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;}
+[data-animate].in-view{opacity:1;transform:translateY(0);}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+}
+
+/* ============================= NAV ============================= */
+header.topnav{
+  position:sticky;top:0;left:0;right:0;z-index:200;
+  background:rgba(7,10,19,.78);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:var(--container);margin:0 auto;padding:0 28px;
+  height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.brand-mark{
+  width:38px;height:38px;border-radius:11px;
+  background:linear-gradient(155deg,var(--blue-bright),var(--blue) 60%, #1c3a8f);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:19px;color:#fff;
+  box-shadow:0 6px 18px -6px rgba(91,138,255,.6);
+  flex-shrink:0;
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.05;}
+.brand-text b{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.02em;}
+.brand-text span{font-size:10.5px;letter-spacing:.18em;color:var(--text-faint);text-transform:uppercase;}
+
+.nav-links{display:flex;align-items:center;gap:30px;}
+.nav-links a{font-size:14.5px;font-weight:500;color:var(--text-dim);transition:color .2s;}
+.nav-links a:hover{color:var(--text);}
+
+.nav-actions{display:flex;align-items:center;gap:12px;}
+.nav-user{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-dim);}
+.nav-user b{color:var(--text);font-weight:600;}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 22px;border-radius:999px;font-size:14.5px;font-weight:600;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,var(--blue-bright),var(--blue));color:#fff;box-shadow:0 10px 24px -10px rgba(91,138,255,.7);}
+.btn-primary:hover{box-shadow:0 14px 30px -10px rgba(91,138,255,.85);transform:translateY(-1px);}
+.btn-ghost{background:transparent;border:1px solid var(--line-strong);color:var(--text);}
+.btn-ghost:hover{border-color:var(--blue-bright);color:var(--blue-bright);}
+.btn-text{color:var(--text-dim);padding:11px 10px;}
+.btn-text:hover{color:var(--text);}
+.btn-block{width:100%;}
+.btn-lg{padding:15px 30px;font-size:15.5px;}
+.btn-danger{background:linear-gradient(135deg,#ff6b78,var(--red));color:#fff;box-shadow:0 10px 24px -10px rgba(239,84,102,.65);}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:999px;}
+
+.hamburger{display:none;flex-direction:column;gap:5px;width:30px;}
+.hamburger span{height:2px;background:var(--text);border-radius:2px;}
+
+/* ============================= HERO ============================= */
+.hero{
+  position:relative;padding:86px 0 70px;overflow:hidden;
+  background:
+    radial-gradient(ellipse 900px 480px at 18% -10%, rgba(53,104,224,.35), transparent 60%),
+    radial-gradient(ellipse 700px 420px at 100% 0%, rgba(51,212,153,.10), transparent 60%);
+}
+.hero::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:240px;pointer-events:none;
+  background:linear-gradient(to top, var(--bg), transparent);
+}
+.road-lines{
+  position:absolute;left:0;right:0;bottom:-60px;height:260px;z-index:0;
+  background-image:repeating-linear-gradient(100deg, transparent 0 60px, rgba(91,138,255,.10) 60px 64px);
+  transform:perspective(280px) rotateX(48deg) scale(1.6);
+  transform-origin:bottom center;
+  opacity:.5;
+  mask-image:linear-gradient(to top, black, transparent);
+}
+.hero-grid{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:999px;background:var(--blue-soft);
+  border:1px solid rgba(91,138,255,.3);color:var(--blue-bright);
+  font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:22px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-soft);}
+.hero h1{
+  font-size:clamp(36px,4.6vw,58px);line-height:1.06;letter-spacing:-.01em;margin-bottom:22px;
+}
+.hero h1 em{font-style:normal;color:var(--blue-bright);}
+.hero p.lead{font-size:17.5px;color:var(--text-dim);max-width:520px;margin-bottom:34px;}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:38px;}
+.hero-meta{display:flex;gap:34px;flex-wrap:wrap;}
+.hero-meta div{display:flex;flex-direction:column;gap:2px;}
+.hero-meta b{font-family:var(--font-mono);font-size:21px;color:var(--text);}
+.hero-meta span{font-size:12.5px;color:var(--text-faint);}
+
+/* device mock */
+.device-mock{
+  position:relative;background:linear-gradient(165deg,var(--bg-elev),var(--bg-card));
+  border:1px solid var(--line-strong);border-radius:var(--radius-lg);
+  padding:26px;box-shadow:var(--shadow-glow);
+}
+.device-mock-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.device-mock-top .who{display:flex;align-items:center;gap:10px;}
+.avatar-dot{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,var(--blue-bright),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--font-display);font-size:14px;}
+.status-pill{
+  display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;
+  font-size:12.5px;font-weight:600;transition:background .3s,color .3s;
+}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;}
+.status-ok{background:var(--green-soft);color:var(--green);}
+.status-ok .dot{background:var(--green);box-shadow:0 0 8px var(--green);}
+.status-warn{background:var(--amber-soft);color:var(--amber);}
+.status-warn .dot{background:var(--amber);box-shadow:0 0 8px var(--amber);}
+.status-danger{background:var(--red-soft);color:var(--red);}
+.status-danger .dot{background:var(--red);box-shadow:0 0 8px var(--red);}
+
+.vital-strip{
+  position:relative;height:96px;border-radius:14px;background:var(--bg-soft);
+  border:1px solid var(--line);overflow:hidden;margin-bottom:18px;
+}
+.vital-strip svg{position:absolute;top:0;left:0;height:100%;width:200%;animation:ekgScroll 5.5s linear infinite;}
+@keyframes ekgScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.vital-strip .label{
+  position:absolute;top:10px;left:14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);z-index:2;
+}
+.vital-strip .bpm{
+  position:absolute;bottom:10px;left:14px;font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--text);z-index:2;
+}
+.vital-strip .bpm span{font-size:11px;color:var(--text-faint);font-family:var(--font-body);margin-left:4px;}
+
+.gauge-row{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin-bottom:16px;}
+.gauge{
+  width:84px;height:84px;border-radius:50%;
+  background:conic-gradient(var(--gauge-color,var(--green)) calc(var(--gauge-pct,18) * 1%), var(--bg-soft) 0);
+  display:flex;align-items:center;justify-content:center;position:relative;
+  transition:background 1.1s ease;
+}
+.gauge::before{content:'';position:absolute;inset:9px;border-radius:50%;background:var(--bg-card);}
+.gauge .gval{position:relative;z-index:1;font-family:var(--font-mono);font-weight:700;font-size:15px;color:var(--text);}
+.gauge-info b{display:block;font-size:14.5px;margin-bottom:3px;}
+.gauge-info span{font-size:12.5px;color:var(--text-faint);}
+
+.mock-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px;}
+.mock-row span:first-child{color:var(--text-faint);}
+.mock-row span:last-child{font-family:var(--font-mono);font-weight:600;}
+
+.sos-mini{
+  margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:9px;
+  padding:13px;border-radius:12px;background:var(--red-soft);color:var(--red);font-weight:700;
+  font-size:13.5px;letter-spacing:.04em;border:1px solid rgba(239,84,102,.25);
+}
+
+/* ============================= SECTIONS GENERIC ============================= */
+section{padding:96px 0;}
+.section-head{max-width:640px;margin:0 auto 56px;text-align:center;}
+.section-head .eyebrow{margin-bottom:16px;}
+.section-head h2{font-size:clamp(28px,3.4vw,40px);margin-bottom:14px;line-height:1.15;}
+.section-head p{color:var(--text-dim);font-size:16px;}
+.section-alt{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+
+/* stat strip */
+.stat-strip{padding:46px 0;border-bottom:1px solid var(--line);}
+.stat-strip .container{display:flex;gap:40px;flex-wrap:wrap;justify-content:space-between;align-items:center;}
+.stat-strip p{max-width:560px;color:var(--text-dim);font-size:15.5px;}
+.stat-strip .stats{display:flex;gap:40px;flex-wrap:wrap;}
+.stat-strip .stat b{font-family:var(--font-mono);font-size:30px;color:var(--blue-bright);display:block;}
+.stat-strip .stat span{font-size:12.5px;color:var(--text-faint);}
+
+/* features grid */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.feature-card{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:30px 26px;transition:transform .25s ease, border-color .25s ease, background .25s ease;
+}
+.feature-card:hover{transform:translateY(-4px);border-color:rgba(91,138,255,.35);background:var(--bg-card-hover);}
+.icon-box{
+  width:46px;height:46px;border-radius:13px;background:var(--blue-soft);color:var(--blue-bright);
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+}
+.icon-box svg{width:23px;height:23px;}
+.feature-card h3{font-size:18px;margin-bottom:9px;}
+.feature-card p{font-size:14.5px;color:var(--text-dim);}
+
+/* como funciona */
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
+.steps-row::before{
+  content:'';position:absolute;top:27px;left:6%;right:6%;height:1px;
+  background:repeating-linear-gradient(to right, var(--line-strong) 0 8px, transparent 8px 16px);z-index:0;
+}
+.step{position:relative;z-index:1;padding:0 18px;text-align:left;}
+.step-num{
+  width:54px;height:54px;border-radius:50%;background:var(--bg-card);border:1px solid var(--line-strong);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;
+  color:var(--blue-bright);margin-bottom:20px;font-size:16px;
+}
+.step h4{font-size:16px;margin-bottom:8px;}
+.step p{font-size:14px;color:var(--text-dim);}
+
+/* demo */
+.demo-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:center;}
+.demo-controls h3{font-size:22px;margin-bottom:12px;}
+.demo-controls p{color:var(--text-dim);font-size:15px;margin-bottom:26px;}
+.scenario-btns{display:flex;flex-direction:column;gap:10px;}
+.scenario-btn{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;
+  border:1px solid var(--line);background:var(--bg-card);text-align:left;transition:.2s;width:100%;
+}
+.scenario-btn:hover{border-color:var(--line-strong);}
+.scenario-btn.active{border-color:var(--blue-bright);background:var(--blue-soft);}
+.scenario-btn .sdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.scenario-btn b{display:block;font-size:14.5px;}
+.scenario-btn span{font-size:12.5px;color:var(--text-faint);}
+
+/* especificações */
+.spec-card{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:42px;display:grid;grid-template-columns:repeat(2,1fr);gap:0;
+}
+.spec-item{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);}
+.spec-item:nth-last-child(-n+1){border-bottom:none;}
+.spec-item span:first-child{color:var(--text-dim);font-size:14.5px;}
+.spec-item span:last-child{font-family:var(--font-mono);font-weight:600;font-size:14.5px;}
+.spec-col{padding:0 26px;}
+.spec-col:first-child{border-right:1px solid var(--line);}
+
+/* publico */
+.publico-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.publico-card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:30px 26px;}
+.publico-card .icon-box{background:var(--green-soft);color:var(--green);}
+.publico-card h3{font-size:17px;margin-bottom:8px;}
+.publico-card p{font-size:14px;color:var(--text-dim);}
+
+/* pricing */
+.pricing-wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:50px;align-items:center;}
+.price-card{
+  background:linear-gradient(160deg,var(--bg-elev),var(--bg-card));
+  border:1px solid var(--line-strong);border-radius:var(--radius-lg);padding:38px;
+  box-shadow:var(--shadow-glow);
+}
+.price-card .tag{display:inline-block;padding:5px 12px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:18px;}
+.price-card h3{font-size:24px;margin-bottom:6px;}
+.price-card .price-row{display:flex;align-items:baseline;gap:8px;margin:18px 0 4px;}
+.price-card .price-row b{font-family:var(--font-mono);font-size:42px;}
+.price-card .price-row span{color:var(--text-faint);font-size:14px;}
+.price-card .installments{color:var(--text-dim);font-size:13.5px;margin-bottom:26px;}
+.price-includes{display:flex;flex-direction:column;gap:11px;margin-bottom:28px;}
+.price-includes li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--text-dim);}
+.price-includes svg{flex-shrink:0;width:17px;height:17px;color:var(--green);margin-top:1px;}
+
+.checkout-card{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:38px;
+}
+.checkout-card h4{font-size:18px;margin-bottom:22px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-grid .full{grid-column:1 / -1;}
+.form-grid .field{margin-bottom:0;}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.field label{font-size:13px;color:var(--text-dim);font-weight:500;}
+.field input,.field select{
+  background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  transition:border-color .2s;
+}
+.field input:focus,.field select:focus{border-color:var(--blue-bright);}
+.field-error{font-size:12.5px;color:var(--red);min-height:14px;}
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--text-dim);margin-bottom:20px;}
+.checkbox-row input{margin-top:3px;accent-color:var(--blue-bright);width:15px;height:15px;flex-shrink:0;}
+
+/* auth pages */
+.auth-wrap{min-height:calc(100vh - 74px);display:flex;align-items:center;justify-content:center;padding:60px 24px;position:relative;}
+.auth-wrap::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 700px 420px at 50% 0%, rgba(53,104,224,.22), transparent 65%);
+  pointer-events:none;
+}
+.auth-card{position:relative;z-index:1;width:100%;max-width:440px;background:var(--bg-card);border:1px solid var(--line-strong);border-radius:var(--radius-lg);padding:42px 38px;box-shadow:var(--shadow-glow);}
+.auth-head{text-align:center;margin-bottom:30px;}
+.auth-head .brand-mark{margin:0 auto 16px;}
+.auth-head h2{font-size:25px;margin-bottom:6px;}
+.auth-head p{color:var(--text-dim);font-size:14px;}
+.auth-foot{text-align:center;margin-top:22px;font-size:13.5px;color:var(--text-dim);}
+.auth-foot a{color:var(--blue-bright);font-weight:600;}
+.auth-foot a:hover{text-decoration:underline;}
+
+/* dashboard */
+.dash-shell{padding:46px 0 90px;}
+.dash-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:34px;flex-wrap:wrap;gap:16px;}
+.dash-head h1{font-size:30px;margin-bottom:6px;}
+.dash-head p{color:var(--text-dim);font-size:14.5px;}
+.dash-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:24px;align-items:start;}
+.panel{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:30px;}
+.panel h3{font-size:17px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.panel h3 small{font-size:12px;font-weight:500;color:var(--text-faint);font-family:var(--font-body);}
+
+.profile-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+.profile-row .avatar-dot{width:54px;height:54px;font-size:19px;}
+.profile-row b{display:block;font-size:17px;}
+.profile-row span{font-size:13px;color:var(--text-faint);}
+
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+.metric{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center;}
+.metric b{display:block;font-family:var(--font-mono);font-size:21px;margin-bottom:4px;}
+.metric span{font-size:11.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;}
+
+.history-list{display:flex;flex-direction:column;gap:10px;max-height:330px;overflow-y:auto;}
+.history-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);}
+.history-item:last-child{border-bottom:none;}
+.history-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.history-item b{font-size:13.5px;display:block;}
+.history-item span{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);}
+.history-empty{color:var(--text-faint);font-size:13.5px;text-align:center;padding:30px 0;}
+
+.toast-stack{position:fixed;top:90px;right:24px;z-index:999;display:flex;flex-direction:column;gap:10px;max-width:320px;}
+.toast{
+  background:var(--bg-elev);border:1px solid var(--line-strong);border-left:3px solid var(--blue-bright);
+  border-radius:12px;padding:14px 16px;font-size:13.5px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);
+  animation:toastIn .25s ease both;
+}
+.toast.success{border-left-color:var(--green);}
+.toast.error{border-left-color:var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(4,6,12,.7);backdrop-filter:blur(4px);z-index:500;
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+.modal-overlay.active{display:flex;}
+.modal-box{
+  background:var(--bg-card);border:1px solid var(--line-strong);border-radius:var(--radius-lg);
+  padding:38px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow-glow);
+}
+.modal-box .icon-circle{
+  width:62px;height:62px;border-radius:50%;background:var(--green-soft);color:var(--green);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+}
+.modal-box.danger .icon-circle{background:var(--red-soft);color:var(--red);}
+.modal-box h3{font-size:20px;margin-bottom:10px;}
+.modal-box p{color:var(--text-dim);font-size:14.5px;margin-bottom:24px;}
+.modal-box .order-num{font-family:var(--font-mono);font-size:13px;color:var(--text-faint);margin-bottom:24px;}
+
+footer{border-top:1px solid var(--line);padding:56px 0 32px;background:var(--bg-soft);}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+.footer-grid h5{font-size:13px;color:var(--text-faint);letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px;}
+.footer-grid ul{display:flex;flex-direction:column;gap:11px;}
+.footer-grid a{font-size:14px;color:var(--text-dim);}
+.footer-grid a:hover{color:var(--text);}
+.footer-brand p{color:var(--text-faint);font-size:13.5px;margin-top:14px;max-width:280px;}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-top:24px;border-top:1px solid var(--line);font-size:12.5px;color:var(--text-faint);}
+.disclaimer{max-width:760px;margin:0 auto 28px;text-align:center;font-size:12px;color:var(--text-faint);line-height:1.6;}
+
+/* ============================= RESPONSIVE ============================= */
+@media (max-width:980px){
+  .hero-grid,.demo-grid,.pricing-wrap{grid-template-columns:1fr;}
+  .features-grid,.publico-grid{grid-template-columns:repeat(2,1fr);}
+  .steps-row{grid-template-columns:repeat(2,1fr);gap:30px 0;}
+  .steps-row::before{display:none;}
+  .spec-card{grid-template-columns:1fr;padding:30px;}
+  .spec-col:first-child{border-right:none;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;}
+  .dash-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:720px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .hero{padding:54px 0 50px;}
+  .hero-meta{gap:22px;}
+  .features-grid,.publico-grid,.form-grid{grid-template-columns:1fr;}
+  .steps-row{grid-template-columns:1fr;}
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  .auth-card{padding:32px 24px;}
+  section{padding:64px 0;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================= TOAST CONTAINER ============================= -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ============================= MODALS ============================= -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box">
+    <div class="icon-circle">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h3>Pedido recebido</h3>
+    <p id="orderModalText">Recebemos a sua solicitação. Nossa equipe entra em contato pelo WhatsApp para confirmar a entrega e o pagamento.</p>
+    <p class="order-num" id="orderNumber"></p>
+    <button class="btn btn-primary btn-block" onclick="closeModal('orderModal')">Entendi</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sosModal">
+  <div class="modal-box danger">
+    <div class="icon-circle">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+    </div>
+    <h3>Alerta de emergência simulado</h3>
+    <p>Em um dispositivo real, a pulseira enviaria sua localização e o tipo de alerta para os contatos de emergência cadastrados e sugeriria parar no próximo ponto seguro. Esta é uma demonstração — em uma emergência real, ligue para o <strong>192 (SAMU)</strong>.</p>
+    <button class="btn btn-primary btn-block" onclick="closeModal('sosModal')">Fechar</button>
+  </div>
+</div>
+
+<!-- ============================= NAV ============================= -->
+<header class="topnav">
+  <div class="nav-inner">
+    <div class="brand" onclick="goTo('home')">
+      <div class="brand-mark">V</div>
+      <div class="brand-text">
+        <b>VitaSense</b>
+        <span>Drive</span>
+      </div>
+    </div>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#" onclick="navAnchor(event,'recursos')">Recursos</a>
+      <a href="#" onclick="navAnchor(event,'como-funciona')">Como funciona</a>
+      <a href="#" onclick="navAnchor(event,'demo')">Demonstração</a>
+      <a href="#" onclick="navAnchor(event,'especificacoes')">Especificações</a>
+      <a href="#" onclick="navAnchor(event,'comprar')">Comprar</a>
+    </nav>
+
+    <div class="nav-actions" id="navActionsLoggedOut">
+      <button class="btn btn-text" onclick="goTo('login')">Entrar</button>
+      <button class="btn btn-primary" onclick="goTo('cadastro')">Criar conta</button>
+    </div>
+
+    <div class="nav-actions" id="navActionsLoggedIn" style="display:none;">
+      <div class="nav-user">Olá, <b id="navUserName">—</b></div>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('dashboard')">Painel</button>
+      <button class="btn btn-text" onclick="logoutUser()">Sair</button>
+    </div>
+
+    <button class="hamburger" onclick="toggleMobileNav()" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ============================= PAGE: HOME ============================= -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="road-lines"></div>
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Tecnologia que protege quem move o mundo</div>
+        <h1>O cansaço não avisa.<br>Mas a sua pulseira <em>sim</em>.</h1>
+        <p class="lead">A VitaSense Drive acompanha os sinais vitais do motorista em tempo real e alerta antes que a fadiga vire um risco na estrada — para quem dirige por horas, todos os dias.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary btn-lg" onclick="navAnchor(null,'comprar')">Quero proteger minha rotina</button>
+          <button class="btn btn-ghost btn-lg" onclick="navAnchor(null,'demo')">Ver demonstração ao vivo</button>
+        </div>
+        <div class="hero-meta">
+          <div><b>5 dias</b><span>de bateria por carga</span></div>
+          <div><b>IP68</b><span>resistente a água e poeira</span></div>
+          <div><b>24/7</b><span>monitoramento contínuo</span></div>
+        </div>
+      </div>
+
+      <div class="device-mock" id="heroWidget">
+        <div class="device-mock-top">
+          <div class="who">
+            <div class="avatar-dot">V</div>
+            <div>
+              <b style="display:block;font-size:14px;">Painel do motorista</b>
+              <span style="font-size:12px;color:var(--text-faint);">VitaSense Drive · ao vivo</span>
+            </div>
+          </div>
+          <span class="status-pill status-ok" id="hero-status"><span class="dot"></span>Tudo certo</span>
+        </div>
+
+        <div class="vital-strip">
+          <span class="label">Frequência cardíaca</span>
+          <svg viewBox="0 0 600 96" preserveAspectRatio="none">
+            <path d="M0,48 L40,48 L55,20 L70,76 L85,48 L150,48 L165,30 L180,60 L195,48 L300,48 L315,20 L330,76 L345,48 L410,48 L425,30 L440,60 L455,48 L600,48 L640,48 L655,20 L670,76 L685,48 L750,48 L765,30 L780,60 L795,48 L900,48 L915,20 L930,76 L945,48 L1010,48 L1025,30 L1040,60 L1055,48 L1200,48"
+              fill="none" stroke="#5b8aff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" id="hero-ekg-path"/>
+          </svg>
+          <div class="bpm"><span id="hero-bpm">72</span><span>bpm</span></div>
+        </div>
+
+        <div class="gauge-row">
+          <div class="gauge" id="hero-gauge" style="--gauge-pct:18;--gauge-color:var(--green);">
+            <span class="gval" id="hero-gauge-val">18%</span>
+          </div>
+          <div class="gauge-info">
+            <b>Nível de fadiga: <span id="hero-fadiga-label">Baixa</span></b>
+            <span>Atualizado a cada poucos segundos</span>
+          </div>
+        </div>
+
+        <div class="mock-row"><span>Tempo de direção</span><span id="hero-tempo">00:00</span></div>
+        <div class="mock-row"><span>Próxima pausa recomendada</span><span id="hero-pausa">em 4h00</span></div>
+
+        <div class="sos-mini">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Botão SOS sempre acessível
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="container">
+      <p>A fadiga é apontada com frequência como um dos fatores associados a acidentes em rodovias, especialmente em viagens longas, jornadas noturnas e turnos extensos de motoristas profissionais.</p>
+      <div class="stats">
+        <div class="stat"><b>+10h</b><span>jornadas comuns de caminhoneiros</span></div>
+        <div class="stat"><b>24/7</b><span>monitoramento sem pausas</span></div>
+        <div class="stat"><b>1 toque</b><span>para acionar o SOS</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECURSOS -->
+  <section id="recursos">
+    <div class="container">
+      <div class="section-head" data-animate>
+        <div class="eyebrow">Recursos</div>
+        <h2>Tudo o que a pulseira faz por quem dirige</h2>
+        <p>Cada função foi pensada para uma rotina real de estrada: longas distâncias, turnos noturnos e pouca margem para erro.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <h3>Monitoramento em tempo real</h3>
+          <p>Acompanha continuamente os sinais vitais do motorista para identificar fadiga e sonolência antes que se tornem um risco.</p>
+        </div>
+        <div class="feature-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+          <h3>Alertas inteligentes</h3>
+          <p>Vibração e aviso sonoro avisam o motorista no momento exato em que os primeiros sinais de cansaço aparecem.</p>
+        </div>
+        <div class="feature-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <h3>Botão SOS</h3>
+          <p>Em emergências, um toque envia um alerta de localização aproximada para os contatos cadastrados pelo motorista.</p>
+        </div>
+        <div class="feature-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5 17.5 17.5M6.5 17.5 12 12 6.5 6.5M17.5 6.5 12 12l5.5 5.5"/></svg></div>
+          <h3>Conectividade</h3>
+          <p>Sincroniza por Bluetooth com o app VitaSense Drive, levando o painel completo de monitoramento para o celular.</p>
+        </div>
+        <div class="feature-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg></div>
+          <h3>Bateria de longa duração</h3>
+          <p>Até 5 dias de uso contínuo com uma única carga, sem comprometer o monitoramento em viagens longas.</p>
+        </div>
+        <div class="feature-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0"/><path d="M12 7v5l3 3"/></svg></div>
+          <h3>Histórico de jornada</h3>
+          <p>Registra o tempo de direção e sugere pausas no momento certo, com tudo salvo no painel pessoal do motorista.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section class="section-alt" id="como-funciona">
+    <div class="container">
+      <div class="section-head" data-animate>
+        <div class="eyebrow">Como funciona</div>
+        <h2>Da pulseira ao alerta, em quatro etapas</h2>
+        <p>Um processo simples acontecendo o tempo todo no pulso do motorista.</p>
+      </div>
+      <div class="steps-row">
+        <div class="step" data-animate>
+          <div class="step-num">01</div>
+          <h4>Leitura contínua</h4>
+          <p>Os sensores leem frequência cardíaca e padrões de movimento durante toda a viagem.</p>
+        </div>
+        <div class="step" data-animate>
+          <div class="step-num">02</div>
+          <h4>Análise dos sinais</h4>
+          <p>Um algoritmo embarcado identifica variações que indicam cansaço, sonolência ou queda de atenção.</p>
+        </div>
+        <div class="step" data-animate>
+          <div class="step-num">03</div>
+          <h4>Alerta na hora</h4>
+          <p>Ao detectar um padrão de risco, a pulseira vibra e o app dispara um aviso sonoro e visual.</p>
+        </div>
+        <div class="step" data-animate>
+          <div class="step-num">04</div>
+          <h4>Pausa ou SOS</h4>
+          <p>O motorista recebe a sugestão de parar com o tempo ideal de descanso; em emergências, o SOS pode ser acionado a qualquer momento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section id="demo">
+    <div class="container">
+      <div class="section-head" data-animate>
+        <div class="eyebrow">Demonstração</div>
+        <h2>Veja a pulseira reagir em tempo real</h2>
+        <p>Escolha um cenário de viagem e acompanhe como o painel da VitaSense Drive responde.</p>
+      </div>
+
+      <div class="demo-grid">
+        <div class="demo-controls" data-animate>
+          <h3>Simule um trajeto</h3>
+          <p>Estes são os mesmos estados que o motorista veria no próprio pulso e no app durante uma viagem real.</p>
+          <div class="scenario-btns">
+            <button class="scenario-btn active" id="demoBtn-calmo" onclick="setScenario('demo','calmo')">
+              <span class="sdot" style="background:var(--green);"></span>
+              <span><b>Direção tranquila</b><span>Sinais vitais estáveis, viagem sob controle</span></span>
+            </button>
+            <button class="scenario-btn" id="demoBtn-fadiga" onclick="setScenario('demo','fadiga')">
+              <span class="sdot" style="background:var(--amber);"></span>
+              <span><b>Sinais de fadiga</b><span>Padrões indicam cansaço crescente</span></span>
+            </button>
+            <button class="scenario-btn" id="demoBtn-sos" onclick="setScenario('demo','sos')">
+              <span class="sdot" style="background:var(--red);"></span>
+              <span><b>Emergência (SOS)</b><span>Acionamento manual do botão de emergência</span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="device-mock" id="demoWidget" data-animate>
+          <div class="device-mock-top">
+            <div class="who">
+              <div class="avatar-dot">V</div>
+              <div>
+                <b style="display:block;font-size:14px;">Painel do motorista</b>
+                <span style="font-size:12px;color:var(--text-faint);">Demonstração</span>
+              </div>
+            </div>
+            <span class="status-pill status-ok" id="demo-status"><span class="dot"></span>Tudo certo</span>
+          </div>
+          <div class="vital-strip">
+            <span class="label">Frequência cardíaca</span>
+            <svg viewBox="0 0 600 96" preserveAspectRatio="none">
+              <path d="M0,48 L40,48 L55,20 L70,76 L85,48 L150,48 L165,30 L180,60 L195,48 L300,48 L315,20 L330,76 L345,48 L410,48 L425,30 L440,60 L455,48 L600,48 L640,48 L655,20 L670,76 L685,48 L750,48 L765,30 L780,60 L795,48 L900,48 L915,20 L930,76 L945,48 L1010,48 L1025,30 L1040,60 L1055,48 L1200,48"
+                fill="none" stroke="#5b8aff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="bpm"><span id="demo-bpm">72</span><span>bpm</span></div>
+          </div>
+          <div class="gauge-row">
+            <div class="gauge" id="demo-gauge" style="--gauge-pct:18;--gauge-color:var(--green);">
+              <span class="gval" id="demo-gauge-val">18%</span>
+            </div>
+            <div class="gauge-info">
+              <b>Nível de fadiga: <span id="demo-fadiga-label">Baixa</span></b>
+              <span id="demo-fadiga-desc">Tudo dentro do esperado</span>
+            </div>
+          </div>
+          <div class="mock-row"><span>Recomendação</span><span id="demo-rec" style="font-family:var(--font-body);font-weight:600;">Seguir viagem normalmente</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESPECIFICAÇÕES -->
+  <section class="section-alt" id="especificacoes">
+    <div class="container">
+      <div class="section-head" data-animate>
+        <div class="eyebrow">Especificações</div>
+        <h2>Feita para acompanhar a rotina de estrada</h2>
+        <p>Discreta no pulso, resistente no dia a dia e compatível com o celular que o motorista já usa.</p>
+      </div>
+
+      <div class="spec-card" data-animate>
+        <div class="spec-col">
+          <div class="spec-item"><span>Conexão</span><span>Bluetooth 5.0</span></div>
+          <div class="spec-item"><span>Autonomia</span><span>Até 5 dias</span></div>
+          <div class="spec-item"><span>Carregamento</span><span>USB-C</span></div>
+          <div class="spec-item"><span>Resistência</span><span>IP68</span></div>
+        </div>
+        <div class="spec-col">
+          <div class="spec-item"><span>Peso</span><span>≈ 25g</span></div>
+          <div class="spec-item"><span>Display</span><span>OLED touch</span></div>
+          <div class="spec-item"><span>Sensores</span><span>Cardíaco + movimento</span></div>
+          <div class="spec-item"><span>Compatibilidade</span><span>iOS e Android</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÚBLICO-ALVO -->
+  <section>
+    <div class="container">
+      <div class="section-head" data-animate>
+        <div class="eyebrow">Para quem é</div>
+        <h2>Feita para quem passa a maior parte do dia ao volante</h2>
+      </div>
+      <div class="publico-grid">
+        <div class="publico-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+          <h3>Caminhoneiros</h3>
+          <p>Viagens longas e jornadas noturnas exigem atenção constante — exatamente quando o cansaço mais pesa.</p>
+        </div>
+        <div class="publico-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
+          <h3>Motoristas de aplicativo</h3>
+          <p>Jornadas extensas com várias corridas, muitas vezes durante a madrugada e em horários de pico.</p>
+        </div>
+        <div class="publico-card" data-animate>
+          <div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg></div>
+          <h3>Frotas e transportadoras</h3>
+          <p>Empresas que querem acompanhar a segurança e o bem-estar de toda a equipe de motoristas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPRAR -->
+  <section class="section-alt" id="comprar">
+    <div class="container">
+      <div class="section-head" data-animate>
+        <div class="eyebrow">Comprar</div>
+        <h2>Leve a VitaSense Drive para a sua próxima viagem</h2>
+        <p>Preencha seus dados e nossa equipe confirma a entrega e a forma de pagamento com você.</p>
+      </div>
+
+      <div class="pricing-wrap">
+        <div class="price-card" data-animate>
+          <span class="tag">Edição motorista</span>
+          <h3>VitaSense Drive</h3>
+          <span style="font-size:13.5px;color:var(--text-faint);">Pulseira inteligente de monitoramento de fadiga</span>
+          <div class="price-row"><span style="font-size:15px;">R$</span><b>249,90</b></div>
+          <div class="installments">ou 6x de R$ 41,65 sem juros</div>
+          <ul class="price-includes">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> 1 pulseira VitaSense Drive</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> Cabo de carregamento USB-C</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> Acesso completo ao app VitaSense Drive</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> 12 meses de garantia</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg> Suporte direto pelo WhatsApp</li>
+          </ul>
+          <button class="btn btn-primary btn-block btn-lg" onclick="document.getElementById('nomeCompra').focus()">Comprar agora</button>
+        </div>
+
+        <div class="checkout-card" data-animate>
+          <h4>Solicitar pedido</h4>
+          <form id="checkoutForm" onsubmit="handleCheckout(event)">
+            <div class="form-grid">
+              <div class="field full">
+                <label for="nomeCompra">Nome completo</label>
+                <input type="text" id="nomeCompra" required placeholder="Seu nome">
+              </div>
+              <div class="field">
+                <label for="telCompra">Telefone / WhatsApp</label>
+                <input type="tel" id="telCompra" required placeholder="(00) 00000-0000">
+              </div>
+              <div class="field">
+                <label for="qtdCompra">Quantidade</label>
+                <select id="qtdCompra">
+                  <option value="1">1 unidade</option>
+                  <option value="2">2 unidades</option>
+                  <option value="3">3 unidades</option>
+                  <option value="5">5 unidades (frota)</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="endCompra">Endereço de entrega</label>
+                <input type="text" id="endCompra" required placeholder="Rua, número, cidade">
+              </div>
+              <div class="field full">
+                <label for="pagCompra">Forma de pagamento</label>
+                <select id="pagCompra">
+                  <option value="pix">Pix</option>
+                  <option value="boleto">Boleto</option>
+                  <option value="entrega">Dinheiro na entrega</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-error" id="checkoutError"></div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Finalizar pedido</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================= PAGE: LOGIN ============================= -->
+<div class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="brand-mark">V</div>
+        <h2>Bem-vindo de volta</h2>
+        <p>Entre para acessar o painel da sua VitaSense Drive.</p>
+      </div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" required placeholder="voce@email.com">
+        </div>
+        <div class="field">
+          <label for="loginSenha">Senha</label>
+          <input type="password" id="loginSenha" required placeholder="••••••••">
+        </div>
+        <div class="field-error" id="loginError"></div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginSubmitBtn">Entrar</button>
+      </form>
+      <div class="auth-foot">Ainda não tem conta? <a href="#" onclick="goTo('cadastro')">Cadastre-se</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= PAGE: CADASTRO ============================= -->
+<div class="page" id="page-cadastro">
+  <div class="auth-wrap">
+    <div class="auth-card" style="max-width:560px;">
+      <div class="auth-head">
+        <div class="brand-mark">V</div>
+        <h2>Criar conta</h2>
+        <p>Configure seu perfil para acessar o painel personalizado.</p>
+      </div>
+      <form id="cadastroForm" onsubmit="handleCadastro(event)">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="cadNome">Nome completo</label>
+            <input type="text" id="cadNome" required placeholder="Seu nome">
+          </div>
+          <div class="field full">
+            <label for="cadEmail">E-mail</label>
+            <input type="email" id="cadEmail" required placeholder="voce@email.com">
+          </div>
+          <div class="field">
+            <label for="cadTelefone">Telefone</label>
+            <input type="tel" id="cadTelefone" required placeholder="(00) 00000-0000">
+          </div>
+          <div class="field">
+            <label for="cadProfissao">Profissão</label>
+            <select id="cadProfissao">
+              <option value="Caminhoneiro(a)">Caminhoneiro(a)</option>
+              <option value="Motorista de aplicativo">Motorista de aplicativo</option>
+              <option value="Gestor de frota">Gestor de frota</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cadSenha">Senha</label>
+            <input type="password" id="cadSenha" required placeholder="Mínimo 6 caracteres">
+          </div>
+          <div class="field">
+            <label for="cadSenha2">Confirmar senha</label>
+            <input type="password" id="cadSenha2" required placeholder="Repita a senha">
+          </div>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="cadTermos" required>
+          <label for="cadTermos">Aceito os termos de uso e a política de privacidade da VitaSense Drive.</label>
+        </div>
+        <div class="field-error" id="cadastroError"></div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="cadastroSubmitBtn">Criar conta</button>
+      </form>
+      <div class="auth-foot">Já tem conta? <a href="#" onclick="goTo('login')">Entrar</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= PAGE: DASHBOARD ============================= -->
+<div class="page" id="page-dashboard">
+  <div class="container dash-shell">
+    <div class="dash-head">
+      <div>
+        <h1>Olá, <span id="dashNome">motorista</span></h1>
+        <p>Este é o seu painel pessoal de monitoramento — simule cenários e acompanhe o histórico de alertas.</p>
+      </div>
+      <button class="btn btn-danger" onclick="triggerSOS()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        Acionar SOS
+      </button>
+    </div>
+
+    <div class="dash-grid">
+      <div>
+        <div class="panel" style="margin-bottom:24px;">
+          <h3>Painel ao vivo <small id="dash-scenario-label">Direção tranquila</small></h3>
+          <div class="device-mock" id="dashWidget" style="border:none;padding:0;box-shadow:none;background:none;">
+            <div class="device-mock-top">
+              <div class="who">
+                <div class="avatar-dot" id="dashAvatarInitial">V</div>
+                <div>
+                  <b style="display:block;font-size:14px;" id="dashWidgetName">Seu painel</b>
+                  <span style="font-size:12px;color:var(--text-faint);">VitaSense Drive · conectada</span>
+                </div>
+              </div>
+              <span class="status-pill status-ok" id="dash-status"><span class="dot"></span>Tudo certo</span>
+            </div>
+            <div class="vital-strip">
+              <span class="label">Frequência cardíaca</span>
+              <svg viewBox="0 0 600 96" preserveAspectRatio="none">
+                <path d="M0,48 L40,48 L55,20 L70,76 L85,48 L150,48 L165,30 L180,60 L195,48 L300,48 L315,20 L330,76 L345,48 L410,48 L425,30 L440,60 L455,48 L600,48 L640,48 L655,20 L670,76 L685,48 L750,48 L765,30 L780,60 L795,48 L900,48 L915,20 L930,76 L945,48 L1010,48 L1025,30 L1040,60 L1055,48 L1200,48"
+                  fill="none" stroke="#5b8aff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div class="bpm"><span id="dash-bpm">72</span><span>bpm</span></div>
+            </div>
+            <div class="gauge-row">
+              <div class="gauge" id="dash-gauge" style="--gauge-pct:18;--gauge-color:var(--green);">
+                <span class="gval" id="dash-gauge-val">18%</span>
+              </div>
+              <div class="gauge-info">
+                <b>Nível de fadiga: <span id="dash-fadiga-label">Baixa</span></b>
+                <span id="dash-fadiga-desc">Tudo dentro do esperado</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric"><b id="dash-tempo">00:00</b><span>Tempo de direção</span></div>
+            <div class="metric"><b id="dash-pausa">4h00</b><span>Próxima pausa</span></div>
+            <div class="metric"><b id="dash-alertas-count">0</b><span>Alertas hoje</span></div>
+          </div>
+
+          <div style="margin-top:24px;">
+            <p style="font-size:13px;color:var(--text-faint);margin-bottom:12px;">Simular cenário de viagem:</p>
+            <div class="scenario-btns" style="flex-direction:row;flex-wrap:wrap;">
+              <button class="scenario-btn active" id="dashBtn-calmo" onclick="setScenario('dash','calmo')" style="flex:1;min-width:170px;">
+                <span class="sdot" style="background:var(--green);"></span>
+                <span><b>Tranquila</b></span>
+              </button>
+              <button class="scenario-btn" id="dashBtn-fadiga" onclick="setScenario('dash','fadiga')" style="flex:1;min-width:170px;">
+                <span class="sdot" style="background:var(--amber);"></span>
+                <span><b>Sinais de fadiga</b></span>
+              </button>
+              <button class="scenario-btn" id="dashBtn-sos" onclick="setScenario('dash','sos')" style="flex:1;min-width:170px;">
+                <span class="sdot" style="background:var(--red);"></span>
+                <span><b>Emergência</b></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Seu perfil</h3>
+          <div class="profile-row">
+            <div class="avatar-dot" id="profileAvatarInitial">V</div>
+            <div>
+              <b id="profileNome">—</b>
+              <span id="profileInfo">—</span>
+            </div>
+          </div>
+          <div class="mock-row"><span>E-mail</span><span class="mono" id="profileEmail" style="font-weight:600;">—</span></div>
+          <div class="mock-row"><span>Telefone</span><span class="mono" id="profileTelefone" style="font-weight:600;">—</span></div>
+          <div class="mock-row"><span>Cliente desde</span><span class="mono" id="profileDesde" style="font-weight:600;">—</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Histórico de alertas <small>simulado</small></h3>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">Nenhum alerta registrado ainda. Simule um cenário para começar.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= FOOTER ============================= -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">
+          <div class="brand-mark">V</div>
+          <div class="brand-text"><b>VitaSense</b><span>Drive</span></div>
+        </div>
+        <p>Pulseira inteligente que monitora a saúde do motorista para reduzir acidentes causados por fadiga ao volante.</p>
+      </div>
+      <div>
+        <h5>Produto</h5>
+        <ul>
+          <li><a href="#" onclick="navAnchor(event,'recursos')">Recursos</a></li>
+          <li><a href="#" onclick="navAnchor(event,'como-funciona')">Como funciona</a></li>
+          <li><a href="#" onclick="navAnchor(event,'especificacoes')">Especificações</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Conta</h5>
+        <ul>
+          <li><a href="#" onclick="goTo('login')">Entrar</a></li>
+          <li><a href="#" onclick="goTo('cadastro')">Criar conta</a></li>
+          <li><a href="#" onclick="navAnchor(event,'comprar')">Comprar</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contato</h5>
+        <ul>
+          <li>contato@vitasensedrive.com.br</li>
+          <li>(00) 0000-0000</li>
+          <li>Atendimento via WhatsApp</li>
+        </ul>
+      </div>
+    </div>
+    <p class="disclaimer">VitaSense Drive é um dispositivo de apoio e alerta, não um equipamento médico e não substitui cuidados profissionais de saúde nem hábitos seguros de direção. Em caso de emergência real, ligue para o 192 (SAMU) ou 193 (Bombeiros).</p>
+    <div class="footer-bottom">
+      <span>© 2026 VitaSense Drive. Todos os direitos reservados.</span>
+      <span>Feito para quem não pode parar de dirigir — mas precisa parar para descansar.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   ESTADO GLOBAL
+   ============================================================ */
+let currentUser = null; // { nome, email, telefone, profissao, criadoEm }
+let mobileNavOpen = false;
+
+const scenarioData = {
+  calmo:  { status:'ok',     bpmBase:[64,80],  fadigaPct:16, label:'Baixa',  desc:'Tudo dentro do esperado', rec:'Seguir viagem normalmente', tempoFator:1, alertText:'Trajeto seguindo dentro do normal' },
+  fadiga: { status:'warn',   bpmBase:[58,68],  fadigaPct:62, label:'Média',  desc:'Padrões indicam cansaço crescente', rec:'Recomenda-se parar em até 20 minutos', tempoFator:1, alertText:'Sinais de fadiga detectados — pausa recomendada' },
+  sos:    { status:'danger', bpmBase:[95,118], fadigaPct:90, label:'Alta',   desc:'Acionamento manual de emergência', rec:'Pare com segurança e aguarde apoio', tempoFator:0, alertText:'Botão SOS acionado manualmente' }
+};
+
+const widgetTimers = {}; // guarda intervalId por widgetKey
+const widgetState = {};  // guarda { scenario, elapsedSeconds }
+
+/* ============================================================
+   NAVEGAÇÃO ENTRE PÁGINAS
+   ============================================================ */
+function goTo(pageId){
+  if(pageId === 'dashboard' && !currentUser){
+    showToast('Entre na sua conta para acessar o painel.', 'error');
+    pageId = 'login';
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  closeMobileNav();
+  if(pageId === 'dashboard'){
+    renderDashboardProfile();
+    renderHistory();
+  }
+}
+
+function navAnchor(evt, anchorId){
+  if(evt) evt.preventDefault();
+  goTo('home');
+  setTimeout(() => {
+    const el = document.getElementById(anchorId);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 60);
+}
+
+function toggleMobileNav(){
+  mobileNavOpen = !mobileNavOpen;
+  const links = document.getElementById('navLinks');
+  links.style.display = mobileNavOpen ? 'flex' : 'none';
+  links.style.position = 'absolute';
+  links.style.top = '74px';
+  links.style.left = '0';
+  links.style.right = '0';
+  links.style.flexDirection = 'column';
+  links.style.background = 'var(--bg-elev)';
+  links.style.padding = '18px 28px';
+  links.style.borderBottom = '1px solid var(--line)';
+  links.style.gap = '16px';
+}
+function closeMobileNav(){
+  if(mobileNavOpen){
+    mobileNavOpen = false;
+    const links = document.getElementById('navLinks');
+    links.removeAttribute('style');
+  }
+}
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+function showToast(message, type){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = message;
+  stack.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 3400);
+  setTimeout(() => el.remove(), 3800);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+
+/* ============================================================
+   CRIPTOGRAFIA SIMPLES DE SENHA (SubtleCrypto SHA-256)
+   Apenas para fins de demonstração — não substitui um backend real.
+   ============================================================ */
+async function hashSenha(senha){
+  const enc = new TextEncoder().encode(senha);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ============================================================
+   CADASTRO
+   ============================================================ */
+async function handleCadastro(evt){
+  evt.preventDefault();
+  const errorEl = document.getElementById('cadastroError');
+  const btn = document.getElementById('cadastroSubmitBtn');
+  errorEl.textContent = '';
+
+  const nome = document.getElementById('cadNome').value.trim();
+  const email = document.getElementById('cadEmail').value.trim().toLowerCase();
+  const telefone = document.getElementById('cadTelefone').value.trim();
+  const profissao = document.getElementById('cadProfissao').value;
+  const senha = document.getElementById('cadSenha').value;
+  const senha2 = document.getElementById('cadSenha2').value;
+
+  if(senha.length < 6){ errorEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; return; }
+  if(senha !== senha2){ errorEl.textContent = 'As senhas não coincidem.'; return; }
+
+  btn.textContent = 'Criando conta...';
+  btn.disabled = true;
+
+  try{
+    const existing = await safeGet('users:' + email, true);
+    if(existing){
+      errorEl.textContent = 'Já existe uma conta com este e-mail.';
+      btn.textContent = 'Criar conta';
+      btn.disabled = false;
+      return;
+    }
+
+    const senhaHash = await hashSenha(senha);
+    const userData = {
+      nome, email, telefone, profissao, senhaHash,
+      criadoEm: new Date().toISOString()
+    };
+
+    const result = await window.storage.set('users:' + email, JSON.stringify(userData), true);
+    if(!result) throw new Error('Falha ao salvar cadastro');
+
+    showToast('Conta criada com sucesso! Faça login para continuar.', 'success');
+    document.getElementById('cadastroForm').reset();
+    goTo('login');
+    document.getElementById('loginEmail').value = email;
+  }catch(err){
+    errorEl.textContent = 'Não foi possível concluir o cadastro agora. Tente novamente.';
+  }finally{
+    btn.textContent = 'Criar conta';
+    btn.disabled = false;
+  }
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+async function handleLogin(evt){
+  evt.preventDefault();
+  const errorEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginSubmitBtn');
+  errorEl.textContent = '';
+
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const senha = document.getElementById('loginSenha').value;
+
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+
+  try{
+    const stored = await safeGet('users:' + email, true);
+    if(!stored){
+      errorEl.textContent = 'E-mail ou senha incorretos.';
+      return;
+    }
+    const userData = JSON.parse(stored);
+    const senhaHash = await hashSenha(senha);
+    if(senhaHash !== userData.senhaHash){
+      errorEl.textContent = 'E-mail ou senha incorretos.';
+      return;
+    }
+
+    currentUser = userData;
+    await window.storage.set('session', email, false);
+    applyLoggedInUI();
+    showToast('Login realizado com sucesso!', 'success');
+    document.getElementById('loginForm').reset();
+    goTo('dashboard');
+  }catch(err){
+    errorEl.textContent = 'Não foi possível entrar agora. Tente novamente.';
+  }finally{
+    btn.textContent = 'Entrar';
+    btn.disabled = false;
+  }
+}
+
+async function logoutUser(){
+  try{ await window.storage.delete('session', false); }catch(e){}
+  currentUser = null;
+  stopWidget('dash');
+  applyLoggedOutUI();
+  showToast('Você saiu da sua conta.', '');
+  goTo('home');
+}
+
+function applyLoggedInUI(){
+  document.getElementById('navActionsLoggedOut').style.display = 'none';
+  document.getElementById('navActionsLoggedIn').style.display = 'flex';
+  document.getElementById('navUserName').textContent = currentUser.nome.split(' ')[0];
+}
+function applyLoggedOutUI(){
+  document.getElementById('navActionsLoggedOut').style.display = 'flex';
+  document.getElementById('navActionsLoggedIn').style.display = 'none';
+}
+
+/* ============================================================
+   RESTAURAR SESSÃO AO CARREGAR
+   ============================================================ */
+async function restoreSession(){
+  try{
+    const sessionResult = await window.storage.get('session', false);
+    if(!sessionResult || !sessionResult.value) return;
+    const email = sessionResult.value;
+    const stored = await safeGet('users:' + email, true);
+    if(!stored) return;
+    currentUser = JSON.parse(stored);
+    applyLoggedInUI();
+  }catch(err){
+    /* sem sessão ativa */
+  }
+}
+
+/* helper: get que retorna null em vez de lançar erro quando a chave não existe */
+async function safeGet(key, shared){
+  try{
+    const res = await window.storage.get(key, shared);
+    return res ? res.value : null;
+  }catch(err){
+    return null;
+  }
+}
+
+/* ============================================================
+   DASHBOARD: PERFIL E HISTÓRICO
+   ============================================================ */
+function renderDashboardProfile(){
+  if(!currentUser) return;
+  const inicial = currentUser.nome.trim().charAt(0).toUpperCase() || 'V';
+  document.getElementById('dashNome').textContent = currentUser.nome.split(' ')[0];
+  document.getElementById('dashWidgetName').textContent = 'Painel de ' + currentUser.nome.split(' ')[0];
+  document.getElementById('dashAvatarInitial').textContent = inicial;
+  document.getElementById('profileAvatarInitial').textContent = inicial;
+  document.getElementById('profileNome').textContent = currentUser.nome;
+  document.getElementById('profileInfo').textContent = currentUser.profissao;
+  document.getElementById('profileEmail').textContent = currentUser.email;
+  document.getElementById('profileTelefone').textContent = currentUser.telefone || '—';
+  const data = new Date(currentUser.criadoEm);
+  document.getElementById('profileDesde').textContent = data.toLocaleDateString('pt-BR');
+
+  startWidget('dash', currentUser.email);
+}
+
+async function renderHistory(){
+  const listEl = document.getElementById('historyList');
+  if(!currentUser){ return; }
+  try{
+    const stored = await safeGet('history:' + currentUser.email, true);
+    const history = stored ? JSON.parse(stored) : [];
+    if(history.length === 0){
+      listEl.innerHTML = '<div class="history-empty">Nenhum alerta registrado ainda. Simule um cenário para começar.</div>';
+      document.getElementById('dash-alertas-count').textContent = '0';
+      return;
+    }
+    document.getElementById('dash-alertas-count').textContent = history.length;
+    listEl.innerHTML = history.slice().reverse().slice(0,30).map(item => {
+      const color = item.status === 'danger' ? 'var(--red)' : item.status === 'warn' ? 'var(--amber)' : 'var(--green)';
+      const time = new Date(item.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+      return '<div class="history-item"><span class="history-dot" style="background:' + color + ';"></span><div><b>' + item.text + '</b><span>' + time + '</span></div></div>';
+    }).join('');
+  }catch(err){
+    listEl.innerHTML = '<div class="history-empty">Não foi possível carregar o histórico agora.</div>';
+  }
+}
+
+async function addHistoryEntry(text, status){
+  if(!currentUser) return;
+  try{
+    const stored = await safeGet('history:' + currentUser.email, true);
+    const history = stored ? JSON.parse(stored) : [];
+    history.push({ text, status, timestamp: Date.now() });
+    await window.storage.set('history:' + currentUser.email, JSON.stringify(history), true);
+    renderHistory();
+  }catch(err){
+    /* falha silenciosa de histórico não deve travar a demonstração */
+  }
+}
+
+function triggerSOS(){
+  setScenario('dash','sos');
+  openModal('sosModal');
+}
+
+/* ============================================================
+   WIDGETS DE SIMULAÇÃO (hero / demo público / dashboard)
+   ============================================================ */
+function setScenario(widgetKey, scenario){
+  widgetState[widgetKey] = widgetState[widgetKey] || { elapsedSeconds: 0 };
+  widgetState[widgetKey].scenario = scenario;
+
+  // botões ativos
+  ['calmo','fadiga','sos'].forEach(s => {
+    const b = document.getElementById(widgetKey + 'Btn-' + s);
+    if(b) b.classList.toggle('active', s === scenario);
+  });
+
+  if(widgetKey === 'dash'){
+    const labelMap = {calmo:'Direção tranquila', fadiga:'Sinais de fadiga', sos:'Emergência acionada'};
+    document.getElementById('dash-scenario-label').textContent = labelMap[scenario];
+  }
+
+  applyScenarioVisual(widgetKey, scenario);
+
+  if(scenario === 'sos' && (widgetKey === 'demo' || widgetKey === 'dash')){
+    addHistoryEntryIfDashboard(widgetKey);
+  }else if(scenario === 'fadiga' && widgetKey === 'dash'){
+    addHistoryEntry(scenarioData.fadiga.alertText, 'warn');
+  }else if(scenario === 'calmo' && widgetKey === 'dash'){
+    addHistoryEntry(scenarioData.calmo.alertText, 'ok');
+  }
+}
+
+function addHistoryEntryIfDashboard(widgetKey){
+  if(widgetKey === 'dash'){
+    addHistoryEntry(scenarioData.sos.alertText, 'danger');
+  }
+}
+
+function applyScenarioVisual(widgetKey, scenario){
+  const data = scenarioData[scenario];
+  const statusEl = document.getElementById(widgetKey + '-status');
+  const gaugeEl = document.getElementById(widgetKey + '-gauge');
+  const gaugeValEl = document.getElementById(widgetKey + '-gauge-val');
+  const fadigaLabelEl = document.getElementById(widgetKey + '-fadiga-label');
+  const fadigaDescEl = document.getElementById(widgetKey + '-fadiga-desc');
+  const recEl = document.getElementById(widgetKey + '-rec');
+
+  if(statusEl){
+    statusEl.className = 'status-pill status-' + data.status;
+    statusEl.innerHTML = '<span class="dot"></span>' + (data.status === 'ok' ? 'Tudo certo' : data.status === 'warn' ? 'Atenção' : 'Emergência');
+  }
+  if(gaugeEl){
+    const color = data.status === 'ok' ? 'var(--green)' : data.status === 'warn' ? 'var(--amber)' : 'var(--red)';
+    gaugeEl.style.setProperty('--gauge-pct', data.fadigaPct);
+    gaugeEl.style.setProperty('--gauge-color', color);
+  }
+  if(gaugeValEl) gaugeValEl.textContent = data.fadigaPct + '%';
+  if(fadigaLabelEl) fadigaLabelEl.textContent = data.label;
+  if(fadigaDescEl) fadigaDescEl.textContent = data.desc;
+  if(recEl) recEl.textContent = data.rec;
+}
+
+function startWidget(widgetKey, seedKey){
+  stopWidget(widgetKey);
+  widgetState[widgetKey] = { scenario: widgetState[widgetKey] ? widgetState[widgetKey].scenario : 'calmo', elapsedSeconds: 0 };
+  applyScenarioVisual(widgetKey, widgetState[widgetKey].scenario);
+  tickWidget(widgetKey);
+  widgetTimers[widgetKey] = setInterval(() => tickWidget(widgetKey), 1000);
+}
+
+function stopWidget(widgetKey){
+  if(widgetTimers[widgetKey]){
+    clearInterval(widgetTimers[widgetKey]);
+    delete widgetTimers[widgetKey];
+  }
+}
+
+function tickWidget(widgetKey){
+  const state = widgetState[widgetKey];
+  if(!state) return;
+  const scenario = scenarioData[state.scenario || 'calmo'];
+
+  const bpmEl = document.getElementById(widgetKey + '-bpm');
+  if(bpmEl){
+    const [min,max] = scenario.bpmBase;
+    bpmEl.textContent = Math.round(min + Math.random() * (max - min));
+  }
+
+  // tempo de direção acelerado para fins de demonstração (1 min simulado por segundo real)
+  if(scenario.tempoFator !== 0){
+    state.elapsedSeconds += 60;
+  }
+  const totalMin = Math.floor(state.elapsedSeconds / 60);
+  const hh = Math.floor(totalMin / 60).toString().padStart(2,'0');
+  const mm = (totalMin % 60).toString().padStart(2,'0');
+
+  const tempoEl = document.getElementById(widgetKey + '-tempo');
+  if(tempoEl) tempoEl.textContent = hh + ':' + mm;
+
+  const pausaEl = document.getElementById(widgetKey + '-pausa');
+  if(pausaEl){
+    const restante = Math.max(0, 240 - totalMin);
+    const rh = Math.floor(restante/60), rm = restante % 60;
+    pausaEl.textContent = restante === 0 ? 'agora' : ('em ' + rh + 'h' + rm.toString().padStart(2,'0'));
+  }
+
+  const dashPausaEl = document.getElementById(widgetKey === 'dash' ? 'dash-pausa' : null);
+  if(dashPausaEl){
+    const restante = Math.max(0, 240 - totalMin);
+    const rh = Math.floor(restante/60), rm = restante % 60;
+    dashPausaEl.textContent = restante === 0 ? 'Pare agora' : (rh + 'h' + rm.toString().padStart(2,'0'));
+  }
+  const dashTempoEl = document.getElementById(widgetKey === 'dash' ? 'dash-tempo' : null);
+  if(dashTempoEl) dashTempoEl.textContent = hh + ':' + mm;
+}
+
+/* ============================================================
+   CHECKOUT / COMPRA
+   ============================================================ */
+async function handleCheckout(evt){
+  evt.preventDefault();
+  const errorEl = document.getElementById('checkoutError');
+  errorEl.textContent = '';
+
+  const nome = document.getElementById('nomeCompra').value.trim();
+  const telefone = document.getElementById('telCompra').value.trim();
+  const endereco = document.getElementById('endCompra').value.trim();
+  const quantidade = document.getElementById('qtdCompra').value;
+  const pagamento = document.getElementById('pagCompra').value;
+
+  if(!nome || !telefone || !endereco){
+    errorEl.textContent = 'Preencha todos os campos para continuar.';
+    return;
+  }
+
+  const orderNumber = 'VSD-' + Date.now().toString().slice(-6);
+  const order = {
+    orderNumber, nome, telefone, endereco, quantidade, pagamento,
+    total: (249.90 * parseInt(quantidade,10)).toFixed(2),
+    criadoEm: new Date().toISOString(),
+    cliente: currentUser ? currentUser.email : null
+  };
+
+  try{
+    await window.storage.set('orders:' + Date.now() + '-' + Math.random().toString(36).slice(2,7), JSON.stringify(order), true);
+  }catch(err){
+    /* mesmo se o armazenamento falhar, confirmamos o pedido ao usuário */
+  }
+
+  document.getElementById('orderNumber').textContent = 'Pedido nº ' + orderNumber + ' · Total: R$ ' + order.total.replace('.',',');
+  document.getElementById('orderModalText').textContent = 'Recebemos a solicitação de ' + nome + '. Nossa equipe entra em contato em breve pelo telefone informado para confirmar a entrega e o pagamento via ' + (pagamento === 'pix' ? 'Pix' : pagamento === 'boleto' ? 'boleto' : 'pagamento na entrega') + '.';
+  openModal('orderModal');
+  document.getElementById('checkoutForm').reset();
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+function setupScrollReveal(){
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+}
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', async () => {
+  setupScrollReveal();
+  startWidget('hero');
+  startWidget('demo');
+  await restoreSession();
+});
+</script>
+</body>
+</html>
